@@ -1,0 +1,35 @@
+<!--div is a block element so it starts and ends with a new line while span is an inline so its apart of the current line, div is used
+to describe a container of data so it can contain other elements. span is used for shorter lines of html --> 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="../static/style.css">
+    <title>Who Doesn't Follow You?</title>
+
+</head>
+
+<body>
+    <div class="container">
+        <span class="text welcome">welcome to the instagram follow scraper</span>
+        <span class="text second-text"></span>
+    </div>
+    <div class="centered-text">
+        <span class="text fade-in-out" id="start-message">Click anywhere to begin</span>
+    </div>
+
+    <script src="../static/typing.js"></script>
+    <script>
+        document.body.addEventListener('click', function() {
+            if (window.animationComplete) {
+                window.location.href = "/login";
+            }
+        });
+    </script>
+    
+</body>
+
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+.wrapper {
+    background-color: black;
+}
+.results-list {
+    margin-top: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.user-item {
+    padding: 10px;
+    margin: 5px 0;
+    background: rgba(128, 128, 128, 0.1);
+    border-radius: 5px;
+    color: white;
+}
+
+.alert {
+    padding: 10px;
+    margin: 10px 0;
+    background: rgba(255, 0, 0, 0.2);
+    border-radius: 5px;
+    color: white;
+    text-align: center;
+}
+    </style>
+    <title>Results</title>
+</head>
+<body>
+    <div class="wrapper">
+        <h1>Users who don't follow you back</h1>
+        <div class="results-list">
+            {% for user in unfollowed_back %}
+                <div class="user-item">{{ user }}</div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

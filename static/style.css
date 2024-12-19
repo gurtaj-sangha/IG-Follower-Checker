@@ -1,0 +1,72 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing: border-box;
+    font-family: 'Times New Roman', Times, serif;
+}
+body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: black;
+    overflow: hidden;
+    position: relative;
+}
+.container{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.container .text{
+    color:gray;
+    font-size: 30px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.container .text.welcome{
+    color: white;
+}
+
+.centered-text {
+    position: absolute;
+    bottom: 100px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    z-index: 10;
+}
+.text.fade-in-out {
+    display: block;
+    opacity: 0;
+    color: gray;
+    font-size: 20px;
+    animation: fadeInOut 2s infinite;
+}
+
+.text.second-text:before {
+    border-right: 2px solid gray;
+    min-width: 1px;
+    color: gray;
+    animation: blink 1s steps(2) infinite;
+}
+.centered-text {
+    text-align: center;
+    margin-top: 20px;
+}
+
+@keyframes blink {
+    50% {
+        border-color: transparent;
+    }
+}
+@keyframes fadeInOut {
+    0%, 100% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
