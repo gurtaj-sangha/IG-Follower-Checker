@@ -1,16 +1,22 @@
+from datetime import datetime
 import random
 import time
 import os
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.action_chains import ActionChains
+from webdriver_manager.chrome import ChromeDriverManager
+
 
 INSTAGRAM_URL = "https://www.instagram.com"
+
+app = Flask(__name__)
+app.secret_key=os.urandom(24)
+
 
 def random_sleep(min_time, max_time):
     time.sleep(random.uniform(min_time, max_time))
@@ -27,12 +33,6 @@ def load_credentials():
         if len(lines) >= 2:
             return lines[0].strip(), lines[1].strip()
     return None
-
-def prompt_credentials():
-    username = input("Enter your Instagram username: ")
-    password = input("Enter your Instagram password: ")
-    save_credentials(username, password)
-    return username, password
 
 def slow_typing(element, text):
     for char in text:
@@ -82,10 +82,6 @@ def login(bot, username, password):
 
     return True
 
-def wait_for_user_to_scroll(duration=60):
-    print(f"[Info] - Waiting for {duration} seconds to allow user to scroll and load all usernames...")
-    time.sleep(duration)
-
 def get_followers_or_following(bot, username, follow_type):
     bot.get(f'{INSTAGRAM_URL}/{username}/')
     random_sleep(3.5, 5)
@@ -101,7 +97,7 @@ def get_followers_or_following(bot, username, follow_type):
     random_sleep(2, 3)
     print(f"[Info] - Navigated to {follow_type} screen.")
 
-    wait_for_user_to_scroll()
+    time.sleep(60)
 
     users = set()
     elements = bot.find_elements(By.XPATH, '//span[@class="_ap3a _aaco _aacw _aacx _aad7 _aade"]')
@@ -122,46 +118,87 @@ def compare_lists(followers, following):
     return unfollowed_back
 
 def write_to_txt(unfollowed_back):
-    with open('unfollowed_back.txt', 'w') as file:
+    """Write results to file"""
+    filename = 'unfollowed_back.txt'
+    with open(filename, 'w') as file:
         file.write('\n'.join(unfollowed_back))
     print("Data written to text file successfully.")
+    return filename
 
-def main():
-    credentials = load_credentials()
-    if credentials is None:
-        username, password = prompt_credentials()
-    else:
-        username, password = credentials
 
-    options = webdriver.ChromeOptions()
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("--disable-cache")
-    options.add_argument('--user-data-dir=./User_Data')  # Use a persistent user data directory
+@app.route('/')
+def index():
+    return render_template("index.html")
 
-    bot = webdriver.Chrome(options=options)
-
-    try:
-        if not login(bot, username, password):
-            print("[Error] - Login failed.")
-            return
+@app.route('/login', methods=['GET', 'POST'])
+def login_page():
+    """Handle login form submission"""
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
         
-        print("Navigating to profile to get followers and following lists.")
-        
-        followers = get_followers(bot, username)
-        print(f"Followers: {len(followers)}")
-        
-        following = get_following(bot, username)
-        print(f"Following: {len(following)}")
-        
-        unfollowed_back = compare_lists(followers, following)
-        write_to_txt(unfollowed_back)
-        
-    finally:
         try:
+            options = webdriver.ChromeOptions()
+            options.add_argument('--no-sandbox')
+            options.add_argument('--disable-dev-shm-usage')
+            options.add_argument('--disable-gpu')
+            options.add_argument('--remote-debugging-port=9222')
+            options.add_argument('--disable-extensions')
+            options.add_argument('--disable-software-rasterizer')
+
+            user_data_dir = os.path.abspath('./chrome_user_data')
+            if not os.path.exists(user_data_dir):
+                os.makedirs(user_data_dir)
+            options.add_argument(f'--user-data-dir={user_data_dir}')
+            
+            service = webdriver.ChromeService()
+            bot = webdriver.Chrome(options=options, service=service)
+            
+            if not login(bot, username, password):
+                flash("Login failed. Please check your credentials.")
+                bot.quit()
+                return redirect(url_for('login_page'))
+            
+            followers = get_followers(bot, username)
+            following = get_following(bot, username)
+            
+            unfollowed_back = compare_lists(followers, following)
+            filename = write_to_txt(unfollowed_back)
+            
+            session['results'] = unfollowed_back
+            session['filename'] = filename
+            
             bot.quit()
+            return redirect(url_for('results'))
+            
         except Exception as e:
-            print(f"Error closing the browser: {e}")
+            print(f"[DEBUG] Error: {e}")
+            flash("An error occurred. Please try again.")
+            return redirect(url_for('login_page'))
+            
+    return render_template('login.html')
+
+@app.route('/results')
+def results():
+    """Display results page"""
+    if 'results' not in session:
+        return redirect(url_for('login_page'))
+    
+    unfollowed_back = session['results']
+    filename = session.get('filename', 'results.txt')
+    return render_template('results.html', 
+                         unfollowed_back=unfollowed_back,
+                         filename=filename)
+
+@app.errorhandler(404)
+def page_not_found(e):
+    """Handle 404 errors"""
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    """Handle 500 errors"""
+    return render_template('500.html'), 500
 
 if __name__ == "__main__":
-    main()
+    app.run(debug=True)
