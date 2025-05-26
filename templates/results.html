@@ -3,43 +3,405 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results - Instagram Follower Checker</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-.wrapper {
-    background-color: black;
-}
-.results-list {
-    margin-top: 20px;
-    max-height: 400px;
-    overflow-y: auto;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Times New Roman', Times, serif;
+        }
 
-.user-item {
-    padding: 10px;
-    margin: 5px 0;
-    background: rgba(128, 128, 128, 0.1);
-    border-radius: 5px;
-    color: white;
-}
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+            color: white;
+            padding: 20px;
+        }
 
-.alert {
-    padding: 10px;
-    margin: 10px 0;
-    background: rgba(255, 0, 0, 0.2);
-    border-radius: 5px;
-    color: white;
-    text-align: center;
-}
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #ffffff;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #808080;
+            margin-bottom: 20px;
+        }
+
+        .stats-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: rgba(128, 128, 128, 0.1);
+            border: 2px solid rgba(128, 128, 128, 0.2);
+            border-radius: 15px;
+            padding: 20px 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 107, 107, 0.5);
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.2);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #808080;
+            margin-top: 5px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .search-container {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            background: rgba(128, 128, 128, 0.1);
+            border: 2px solid rgba(128, 128, 128, 0.2);
+            border-radius: 25px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: #4ecdc4;
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.2);
+        }
+
+        .search-input::placeholder {
+            color: #808080;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #808080;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(128, 128, 128, 0.1);
+            color: #808080;
+            border: 2px solid rgba(128, 128, 128, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }        .user-card {
+            background: rgba(128, 128, 128, 0.05);
+            border: 2px solid rgba(128, 128, 128, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            cursor: pointer;
+        }
+
+        .user-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+        }
+
+        .user-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(128, 128, 128, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .user-details h3 {
+            font-size: 1.1rem;
+            color: white;
+            margin-bottom: 5px;
+        }        .user-details p {
+            color: #808080;
+            font-size: 0.9rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #808080;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #4ecdc4;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .filter-info {
+            text-align: center;
+            color: #808080;
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-container {
+                max-width: none;
+            }
+
+            .stats-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #808080;
+            margin: 20px 0;
+        }
+
+        .loading i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
-    <title>Results</title>
 </head>
 <body>
-    <div class="wrapper">
-        <h1>Users who don't follow you back</h1>
-        <div class="results-list">
-            {% for user in unfollowed_back %}
-                <div class="user-item">{{ user }}</div>
-            {% endfor %}
+    <div class="container">        <div class="header">
+            <h1><i class="fas fa-users"></i> Instagram Follower Results</h1>
+            <p>Users who don't follow you back</p>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <span class="stat-number">{{ unfollowed_back|length }}</span>
+                <div class="stat-label">Not Following Back</div>
+            </div>
+        </div>        <div class="controls">
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search usernames...">
+            </div>
+            <div class="action-buttons">
+                <a href="{{ url_for('login_page') }}" class="btn btn-primary">
+                    <i class="fas fa-redo"></i> Check Again
+                </a>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <i class="fas fa-spinner"></i> Loading...
+        </div>
+
+        <div class="results-grid" id="resultsGrid">
+            {% if unfollowed_back %}
+                {% for user in unfollowed_back %}                <a href="https://instagram.com/{{ user }}" target="_blank" class="user-card fade-in" data-username="{{ user.lower() }}">
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            {{ user[0].upper() }}
+                        </div>
+                        <div class="user-details">
+                            <h3>{{ user }}</h3>
+                            <p>@{{ user }}</p>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-heart"></i>
+                    <h3>Great news!</h3>
+                    <p>Everyone you follow is following you back!</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="filter-info" id="filterInfo" style="display: none;">
+            Showing <span id="visibleCount">0</span> of {{ unfollowed_back|length }} results
         </div>
     </div>
+
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const resultsGrid = document.getElementById('resultsGrid');
+        const filterInfo = document.getElementById('filterInfo');
+        const visibleCount = document.getElementById('visibleCount');
+        const userCards = document.querySelectorAll('.user-card');
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            let visibleCards = 0;
+
+            userCards.forEach(card => {
+                const username = card.getAttribute('data-username');
+                if (username.includes(searchTerm)) {
+                    card.style.display = 'block';
+                    visibleCards++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            if (searchTerm.length > 0) {
+                visibleCount.textContent = visibleCards;
+                filterInfo.style.display = 'block';
+            } else {
+                filterInfo.style.display = 'none';
+            }
+        });        
+        window.addEventListener('load', function() {
+            const cards = document.querySelectorAll('.user-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                }, index * 50);
+            });
+        });
+
+        document.querySelectorAll('.user-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+    </script>
 </body>
 </html>
