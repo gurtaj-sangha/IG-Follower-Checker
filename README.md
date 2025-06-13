@@ -31,7 +31,7 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
 ### 2. PROJECT STRUCTURE
-'''
+```
 ├── instagram_scraper.py      ← Flask app + Selenium logic
 ├── README.md
 ├── .gitignore
@@ -40,7 +40,7 @@ pip install -r requirements.txt
 ├── templates/                ← Jinja2 HTML files
 │   ├── index.html
 │   └── results.html
-'''
+```
 ### HOW IT WORKS
 1. Headless Chrome goes on account.
 2. The script auto-scrolls the followers and following dialogs until no new rows appear.
