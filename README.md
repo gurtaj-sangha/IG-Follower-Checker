@@ -36,10 +36,15 @@ pip install -r requirements.txt
 ├── README.md
 ├── .gitignore
 ├── static/                   ← Tailwind-compiled CSS
-│   └── main.css
+│   └── style.css
+|   └── secondstyle.css
+|   └── typing.js
 ├── templates/                ← Jinja2 HTML files
 │   ├── index.html
 │   └── results.html
+|   └── 404.html
+|   └── 500.html
+|   └── login.html
 ```
 ### HOW IT WORKS
 1. Headless Chrome goes on account.
